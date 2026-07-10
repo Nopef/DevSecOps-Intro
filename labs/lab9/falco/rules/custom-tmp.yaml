@@ -1,0 +1,6 @@
+- rule: Write to /tmp by container
+  desc: Detect writes to /tmp inside a container
+  condition: open_write and container and fd.name startswith /tmp/
+  output: "Write to /tmp by container (user=%user.name container=%container.name file=%fd.name cmd=%proc.cmdline)"
+  priority: WARNING
+  tags: [container, drift]
