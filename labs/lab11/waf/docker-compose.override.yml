@@ -1,0 +1,28 @@
+# Bonus: ModSecurity v3 + OWASP CRS v4 in front of Nginx
+# Usage: docker compose -f docker-compose.yml -f waf/docker-compose.override.yml up -d
+# WAF endpoint: https://localhost:8443/  (maps to container :8080)
+
+services:
+  nginx:
+    ports: !reset null
+    expose:
+      - "80"
+      - "443"
+
+  waf:
+    image: owasp/modsecurity-crs:nginx-alpine
+    restart: unless-stopped
+    depends_on:
+      - nginx
+      - juice
+    ports:
+      - "8443:8080"
+    environment:
+      BACKEND: "http://nginx:80"
+      PARANOIA: "1"
+      MODSEC_RULE_ENGINE: "On"
+      ANOMALY_INBOUND: "5"
+      ANOMALY_OUTBOUND: "4"
+      SERVER_NAME: "localhost-waf"
+    volumes:
+      - ./waf/logs:/var/log/modsecurity:rw
